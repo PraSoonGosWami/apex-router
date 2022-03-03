@@ -1,24 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import { constructRoutes, Link, Router, Routes } from "ApexRouter";
+import routeConfig from "./routeConfig";
+
+const routes = constructRoutes(routeConfig);
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router routes={routes}>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/settings">Settings</Link>
+          </li>
+          <li>
+            <Link to="/settings/apple">Apple</Link>
+          </li>
+          <li>
+            <Link to="/settings/apple/child">Child</Link>
+          </li>
+        </ul>
+      </nav>
+      <Routes />
+    </Router>
   );
 }
 
