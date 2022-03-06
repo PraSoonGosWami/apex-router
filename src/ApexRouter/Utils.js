@@ -1,11 +1,13 @@
 import { pathToRegexp } from "path-to-regexp";
 
-const flatenRoutes = (routeConfig, routes) => {
+const __flatenRoutes = (routeConfig, routes) => {
   if (!routeConfig || routeConfig.length <= 0) return;
   routeConfig.forEach((route) => {
+    if (!route.name)
+      throw new Error("'name' is a required property in route config");
     const { children, ...rest } = route;
-    routes.push({ ...rest });
-    if (children && children.length > 0) flatenRoutes(children, routes);
+    if (rest.path && (rest.component || rest.render)) routes.push({ ...rest });
+    if (children && children.length > 0) __flatenRoutes(children, routes);
   });
 };
 
@@ -19,7 +21,7 @@ const compilePath = (path, options) => {
 
 const constructRoutes = (routeConfig) => {
   const routes = [];
-  flatenRoutes(routeConfig, routes);
+  __flatenRoutes(routeConfig, routes);
   return routes;
 };
 

@@ -35,7 +35,6 @@ const routeConfig = [
   {
     name: "posts",
     path: "/posts",
-
     component: Posts,
     roles: ["QA"],
     exact: true,

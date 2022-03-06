@@ -28,10 +28,6 @@ const Router = ({ routes = [], children }) => {
     const matchedRoutes = [];
     for (let i = 0; i < routes.length; i++) {
       const { path, exact = false } = routes[i];
-      if (!path)
-        throw new Error(
-          "No 'path' found. 'path' is a required property in route config"
-        );
       const { regexp, keys } = compilePath(path, { end: exact });
       const matched = regexp.exec(pathname);
       if (matched) {
