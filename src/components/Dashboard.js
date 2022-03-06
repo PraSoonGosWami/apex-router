@@ -1,13 +1,13 @@
 import React from "react";
 import NestedComponentWithHooks from "./NestedComponentWithHooks";
 
-const Home = (props) => {
+const Dashboard = () => {
   return (
     <div>
-      <h1>Home</h1>
+      <h1>Dashboard</h1>
       <NestedComponentWithHooks />
     </div>
   );
 };
 
-export default Home;
+export default Dashboard;

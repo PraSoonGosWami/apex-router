@@ -1,6 +1,5 @@
 import React, { createContext, useState, useLayoutEffect } from "react";
 import { createBrowserHistory } from "history";
-import { match } from "path-to-regexp";
 import propTypes from "prop-types";
 import { compilePath } from "./Utils";
 
@@ -9,21 +8,30 @@ export const RouterContext = createContext();
 
 const Router = ({ routes = [], children }) => {
   const [matched, setMatched] = useState([]);
+  let __default;
+  let __404;
+
   useLayoutEffect(() => {
     let unlisten = history.listen(handleRouteChange);
     return () => {
       unlisten();
     };
   }, []);
+
   useLayoutEffect(() => {
-    mathcPath(history.location.pathname);
+    __default = routes.find((route) => route.default);
+    __404 = routes.find((route) => route.name === "404");
+    matchPath(history.location.pathname);
   }, [routes]);
 
-  const mathcPath = (pathname) => {
+  const matchPath = (pathname) => {
     const matchedRoutes = [];
     for (let i = 0; i < routes.length; i++) {
       const { path, exact = false } = routes[i];
-      if (!path) return;
+      if (!path)
+        throw new Error(
+          "No 'path' found. 'path' is a required property in route config"
+        );
       const { regexp, keys } = compilePath(path, { end: exact });
       const matched = regexp.exec(pathname);
       if (matched) {
@@ -42,14 +50,17 @@ const Router = ({ routes = [], children }) => {
           ...routes[i],
         };
         matchedRoutes.push(routeProps);
-        if (exact) break;
+        if (exact && isExact) break;
       }
     }
-    setMatched(matchedRoutes);
+    if (!matchedRoutes.length) {
+      if (__404) history.replace(__404.path);
+      else if (__default) history.replace(__default.path);
+    } else setMatched(matchedRoutes);
   };
 
   const handleRouteChange = (history) => {
-    mathcPath(history.location.pathname);
+    matchPath(history.location.pathname);
   };
 
   return (

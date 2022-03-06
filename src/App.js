@@ -12,13 +12,13 @@ function App() {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/settings">Settings</Link>
+            <Link to="/dashboard">Dashboard</Link>
           </li>
           <li>
-            <Link to="/settings/apple">Apple</Link>
+            <Link to="/profile">Profile</Link>
           </li>
           <li>
-            <Link to="/settings/apple/child">Child</Link>
+            <Link to="/posts">Posts</Link>
           </li>
         </ul>
       </nav>
