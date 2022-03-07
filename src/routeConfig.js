@@ -10,7 +10,9 @@ const routeConfig = [
     path: "/",
     exact: true,
     component: Home,
-    beforeLoad: () => console.log("Loading HOME"),
+    beforeLoad: () => {
+      console.log("Loading HOME");
+    },
     beforeUnload: () => console.log("Unloading HOME"),
     roles: ["Admin"],
     hidden: true,

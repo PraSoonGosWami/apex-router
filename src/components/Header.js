@@ -3,7 +3,6 @@ import React from "react";
 
 const Header = (props) => {
   const current = useRouter();
-
   return (
     <div>
       <h1>Header</h1>

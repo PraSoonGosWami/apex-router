@@ -1,31 +1,37 @@
-import React, { createContext, useState, useLayoutEffect } from "react";
+import React, { createContext, useLayoutEffect } from "react";
 import { createBrowserHistory } from "history";
 import propTypes from "prop-types";
 import { compilePath } from "./Utils";
+import { Component } from "react/cjs/react.production.min";
 
 export const history = createBrowserHistory();
 export const RouterContext = createContext();
 
-const Router = ({ routes = [], children }) => {
-  const [matched, setMatched] = useState([]);
-  let __default;
-  let __404;
-
-  useLayoutEffect(() => {
-    let unlisten = history.listen(handleRouteChange);
-    return () => {
-      unlisten();
+class Router extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { matched: [] };
+    this.__default = null;
+    this.__404 = null;
+    this.unlisten = history.listen(this.handleRouteChange);
+    this.__default = this.props.routes?.find((route) => route.default) || {
+      path: this.props.routes?.[0].path,
     };
-  }, []);
+    this.__404 = this.props.routes?.find((route) => route.name === "404");
+  }
 
-  useLayoutEffect(() => {
-    __default = routes.find((route) => route.default);
-    __404 = routes.find((route) => route.name === "404");
-    handleRouteChange(history);
-  }, [routes]);
+  componentDidMount() {
+    this.handleRouteChange(history);
+  }
 
-  const matchPath = (pathname) => {
+  componentWillUnmount() {
+    if (this.unlisten) this.unlisten();
+  }
+
+  matchPath = (pathname) => {
     const matchedRoutes = [];
+    const { routes } = this.props;
+    if (!routes) return;
     for (let i = 0; i < routes.length; i++) {
       const { path, exact = false } = routes[i];
       const { regexp, keys } = compilePath(path, { end: exact });
@@ -49,43 +55,47 @@ const Router = ({ routes = [], children }) => {
         if (exact && isExact) break;
       }
     }
+
     if (!matchedRoutes.length) {
-      if (__404) history.replace(__404.path);
-      else if (__default) history.replace(__default.path);
-      else history.replace(routes[0].path);
+      if (this.__404) history.replace(this.__404.path);
+      else if (this.__default) history.replace(this.__default.path);
     } else {
-      handleBeforeLoad(matchedRoutes);
-      setMatched((prevState) => {
-        handleBeforeUnload(prevState);
-        return matchedRoutes;
-      });
+      //TODO
+      if (this.handleBeforeLoad(matchedRoutes) === false) history.back();
+      else {
+        this.handleBeforeUnload(this.state.matched);
+        this.setState({ matched: matchedRoutes });
+      }
     }
   };
 
-  const handleRouteChange = (history) => {
-    matchPath(history.location.pathname);
+  handleRouteChange = (history) => {
+    this.matchPath(history.location.pathname);
   };
 
-  const handleBeforeLoad = (mRoutes) => {
+  handleBeforeLoad = (mRoutes) => {
     if (!mRoutes.length) return;
     const cur = mRoutes[mRoutes.length - 1];
-    if (cur.beforeLoad && cur.beforeLoad instanceof Function) cur.beforeLoad();
+    if (cur.beforeLoad && cur.beforeLoad instanceof Function)
+      return cur.beforeLoad();
   };
-  const handleBeforeUnload = (cRoutes) => {
+  handleBeforeUnload = (cRoutes) => {
     if (!cRoutes.length) return;
     const cur = cRoutes[cRoutes.length - 1];
     if (cur.beforeUnload && cur.beforeUnload instanceof Function)
-      cur.beforeUnload();
+      return cur.beforeUnload();
   };
-  return (
-    <RouterContext.Provider value={{ matched }}>
-      {children}
-    </RouterContext.Provider>
-  );
-};
+  render() {
+    return (
+      <RouterContext.Provider value={{ matched: this.state.matched }}>
+        {this.props.children}
+      </RouterContext.Provider>
+    );
+  }
+}
 
 Router.propTypes = {
-  routes: propTypes.arrayOf(propTypes.object),
+  routes: propTypes.arrayOf(propTypes.object).isRequired,
 };
 
 export default Router;
