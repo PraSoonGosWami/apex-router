@@ -7,10 +7,11 @@ import Post from "components/Post";
 const routeConfig = [
   {
     name: "home", //required
-    path: "/", //required
+    path: "/",
     exact: true,
-    default: true,
-    component: Home, //required or render
+    component: Home,
+    beforeLoad: () => console.log("Loading HOME"),
+    beforeUnload: () => console.log("Unloading HOME"),
     roles: ["Admin"],
     hidden: true,
   },
@@ -28,7 +29,7 @@ const routeConfig = [
     path: "/profile",
     exact: true,
     component: Profile,
-    roles: ["QA"],
+    roles: ["Packer"],
     hidden: false,
     features: ["showDatePicker"],
   },
@@ -36,8 +37,7 @@ const routeConfig = [
     name: "posts",
     path: "/posts",
     component: Posts,
-    roles: ["QA"],
-    exact: true,
+    roles: ["Techops"],
     hidden: false,
     features: ["showDatePicker"],
     children: [
@@ -51,11 +51,6 @@ const routeConfig = [
         features: ["showDatePicker"],
       },
     ],
-  },
-  {
-    name: "404",
-    path: "/not-found",
-    render: () => <h1>Page Not Found</h1>,
   },
 ];
 

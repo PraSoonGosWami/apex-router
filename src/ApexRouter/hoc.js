@@ -6,9 +6,12 @@ export const withRouter = (Component) => {
     return (
       <RouterContext.Consumer>
         {({ matched }) => {
-          const { component, render, ...routeProps } =
-            matched[matched.length - 1];
-          return <Component {...props} {...routeProps} />;
+          if (matched.length) {
+            const { component, render, ...routeProps } =
+              matched[matched.length - 1];
+            return <Component {...props} {...routeProps} />;
+          }
+          return <Component {...props} />;
         }}
       </RouterContext.Consumer>
     );

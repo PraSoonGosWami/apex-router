@@ -1,4 +1,5 @@
 import { constructRoutes, Link, Router, Routes } from "ApexRouter";
+import Header from "components/Header";
 import routeConfig from "./routeConfig";
 
 const routes = constructRoutes(routeConfig);
@@ -22,6 +23,7 @@ function App() {
           </li>
         </ul>
       </nav>
+      <Header />
       <Routes />
     </Router>
   );

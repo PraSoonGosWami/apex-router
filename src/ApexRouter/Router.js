@@ -21,7 +21,7 @@ const Router = ({ routes = [], children }) => {
   useLayoutEffect(() => {
     __default = routes.find((route) => route.default);
     __404 = routes.find((route) => route.name === "404");
-    matchPath(history.location.pathname);
+    handleRouteChange(history);
   }, [routes]);
 
   const matchPath = (pathname) => {
@@ -29,9 +29,9 @@ const Router = ({ routes = [], children }) => {
     for (let i = 0; i < routes.length; i++) {
       const { path, exact = false } = routes[i];
       const { regexp, keys } = compilePath(path, { end: exact });
-      const matched = regexp.exec(pathname);
-      if (matched) {
-        const [url, ...values] = matched;
+      const match = regexp.exec(pathname);
+      if (match) {
+        const [url, ...values] = match;
         const isExact = pathname === url;
         const routeProps = {
           url,
@@ -52,13 +52,31 @@ const Router = ({ routes = [], children }) => {
     if (!matchedRoutes.length) {
       if (__404) history.replace(__404.path);
       else if (__default) history.replace(__default.path);
-    } else setMatched(matchedRoutes);
+      else history.replace(routes[0].path);
+    } else {
+      handleBeforeLoad(matchedRoutes);
+      setMatched((prevState) => {
+        handleBeforeUnload(prevState);
+        return matchedRoutes;
+      });
+    }
   };
 
   const handleRouteChange = (history) => {
     matchPath(history.location.pathname);
   };
 
+  const handleBeforeLoad = (mRoutes) => {
+    if (!mRoutes.length) return;
+    const cur = mRoutes[mRoutes.length - 1];
+    if (cur.beforeLoad && cur.beforeLoad instanceof Function) cur.beforeLoad();
+  };
+  const handleBeforeUnload = (cRoutes) => {
+    if (!cRoutes.length) return;
+    const cur = cRoutes[cRoutes.length - 1];
+    if (cur.beforeUnload && cur.beforeUnload instanceof Function)
+      cur.beforeUnload();
+  };
   return (
     <RouterContext.Provider value={{ matched }}>
       {children}
