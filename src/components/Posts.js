@@ -5,7 +5,7 @@ const Posts = (props) => {
   return (
     <div>
       <h1>Posts</h1>
-      <Link to="/postsdefefe/build-a-router">
+      <Link to="/posts/build-a-router">
         Navigate to build-a-router post using Router Link component
       </Link>
       <br /> <br />

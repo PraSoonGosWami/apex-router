@@ -13,7 +13,9 @@ const routeConfig = [
     beforeLoad: () => {
       console.log("Loading HOME");
     },
-    beforeUnload: () => console.log("Unloading HOME"),
+    beforeUnload: () => {
+      console.log("Unloading HOME");
+    },
     roles: ["Admin"],
     hidden: true,
   },
@@ -38,11 +40,21 @@ const routeConfig = [
   {
     name: "posts",
     path: "/posts",
+    exact: true,
     component: Posts,
     roles: ["Techops"],
     hidden: false,
     features: ["showDatePicker"],
     children: [
+      {
+        name: "anotherpost",
+        path: "/posts/solid",
+        exact: true,
+        render: () => <h2>ANother post</h2>,
+        roles: ["QA"],
+        hidden: false,
+        features: ["showDatePicker"],
+      },
       {
         name: "post",
         path: "/posts/:postid",

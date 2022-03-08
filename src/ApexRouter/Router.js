@@ -1,4 +1,4 @@
-import React, { createContext, useLayoutEffect } from "react";
+import React, { createContext } from "react";
 import { createBrowserHistory } from "history";
 import propTypes from "prop-types";
 import { compilePath } from "./Utils";
@@ -11,17 +11,26 @@ class Router extends Component {
   constructor(props) {
     super(props);
     this.state = { matched: [] };
-    this.__default = null;
-    this.__404 = null;
-    this.unlisten = history.listen(this.handleRouteChange);
-    this.__default = this.props.routes?.find((route) => route.default) || {
-      path: this.props.routes?.[0].path,
-    };
-    this.__404 = this.props.routes?.find((route) => route.name === "404");
+    if (
+      this.props.routes &&
+      this.props.routes instanceof Array &&
+      this.props.routes.length
+    ) {
+      this.unlisten = history.listen(this.handleRouteChange);
+      this.__default = this.props.routes.find((route) => route.default) || {
+        path: this.props.routes[0].path,
+      };
+      this.__404 = this.props.routes.find((route) => route.name === "404");
+    }
   }
 
   componentDidMount() {
-    this.handleRouteChange(history);
+    if (
+      this.props.routes &&
+      this.props.routes instanceof Array &&
+      this.props.routes.length
+    )
+      this.handleRouteChange(history);
   }
 
   componentWillUnmount() {
@@ -55,17 +64,14 @@ class Router extends Component {
         if (exact && isExact) break;
       }
     }
-
     if (!matchedRoutes.length) {
-      if (this.__404) history.replace(this.__404.path);
-      else if (this.__default) history.replace(this.__default.path);
+      this.__404
+        ? history.replace(this.__404.path)
+        : history.replace(this.__default.path);
     } else {
-      //TODO
-      if (this.handleBeforeLoad(matchedRoutes) === false) history.back();
-      else {
-        this.handleBeforeUnload(this.state.matched);
-        this.setState({ matched: matchedRoutes });
-      }
+      if (this.handleBeforeLoad(matchedRoutes) === false) return;
+      if (this.handleBeforeUnload(this.state.matched) === false) return;
+      this.setState({ matched: matchedRoutes });
     }
   };
 

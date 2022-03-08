@@ -3,6 +3,7 @@ import { RouterContext } from "./Router";
 
 const Routes = () => {
   const { matched } = useContext(RouterContext);
+  console.log(matched);
   const components = matched.map((r) => {
     const { component, render, ...routeProps } = r;
     if (component)
