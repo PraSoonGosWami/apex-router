@@ -38,6 +38,10 @@ class Router extends Component {
   }
 
   matchPath = (pathname) => {
+    if (this.handleBeforeUnload(this.state.matched, pathname) === false) {
+      history.back();
+      return;
+    }
     const matchedRoutes = [];
     const { routes } = this.props;
     if (!routes) return;
@@ -70,7 +74,6 @@ class Router extends Component {
         : history.replace(this.__default.path);
     } else {
       if (this.handleBeforeLoad(matchedRoutes) === false) return;
-      if (this.handleBeforeUnload(this.state.matched) === false) return;
       this.setState({ matched: matchedRoutes });
     }
   };
@@ -82,12 +85,14 @@ class Router extends Component {
   handleBeforeLoad = (mRoutes) => {
     if (!mRoutes.length) return;
     const cur = mRoutes[mRoutes.length - 1];
+
     if (cur.beforeLoad && cur.beforeLoad instanceof Function)
-      return cur.beforeLoad();
+      return cur.beforeLoad("PROPS");
   };
-  handleBeforeUnload = (cRoutes) => {
+  handleBeforeUnload = (cRoutes, pathname) => {
     if (!cRoutes.length) return;
     const cur = cRoutes[cRoutes.length - 1];
+    if (cur.path === pathname) return;
     if (cur.beforeUnload && cur.beforeUnload instanceof Function)
       return cur.beforeUnload();
   };

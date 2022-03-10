@@ -9,18 +9,14 @@ function App() {
     <Router routes={routes}>
       <nav>
         <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/dashboard">Dashboard</Link>
-          </li>
-          <li>
-            <Link to="/profile">Profile</Link>
-          </li>
-          <li>
-            <Link to="/posts">Posts</Link>
-          </li>
+          {routeConfig.map((r) => {
+            if (r.beforeLoad) r.beforeLoad.bind(null, "Special Props");
+            return (
+              <li key={r.name}>
+                <Link to={r.path}>{r.title}</Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
       <Header />

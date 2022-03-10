@@ -7,6 +7,7 @@ import Post from "components/Post";
 const routeConfig = [
   {
     name: "home", //required
+    title: "Home",
     path: "/",
     exact: true,
     component: Home,
@@ -21,8 +22,13 @@ const routeConfig = [
   },
   {
     name: "dashboard",
+    title: "Dashboard",
     path: "/dashboard",
     exact: true,
+    beforeUnload: () => {
+      console.log("Unloading Dashboard");
+      //return false;
+    },
     component: Dashboard,
     roles: ["QA"],
     hidden: false,
@@ -30,7 +36,9 @@ const routeConfig = [
   },
   {
     name: "profile",
+    title: "Profile",
     path: "/profile",
+    default: true,
     exact: true,
     component: Profile,
     roles: ["Packer"],
@@ -39,6 +47,7 @@ const routeConfig = [
   },
   {
     name: "posts",
+    title: "Posts",
     path: "/posts",
     exact: true,
     component: Posts,
