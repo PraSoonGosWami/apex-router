@@ -16,6 +16,7 @@ const routeConfig = [
     },
     beforeUnload: () => {
       console.log("Unloading HOME");
+      return false;
     },
     roles: ["Admin"],
     hidden: true,
@@ -25,9 +26,11 @@ const routeConfig = [
     title: "Dashboard",
     path: "/dashboard",
     exact: true,
+    beforeLoad: () => {
+      console.log("Loading Dashboard");
+    },
     beforeUnload: () => {
       console.log("Unloading Dashboard");
-      //return false;
     },
     component: Dashboard,
     roles: ["QA"],
@@ -38,6 +41,12 @@ const routeConfig = [
     name: "profile",
     title: "Profile",
     path: "/profile",
+    beforeLoad: () => {
+      console.log("Loading Profile");
+    },
+    beforeUnload: () => {
+      console.log("Unloading Profile");
+    },
     default: true,
     exact: true,
     component: Profile,
@@ -69,7 +78,7 @@ const routeConfig = [
         path: "/posts/:postid",
         exact: true,
         component: Post,
-        roles: ["QA"],
+        roles: ["Developer", "Devops"],
         hidden: false,
         features: ["showDatePicker"],
       },
