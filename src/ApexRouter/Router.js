@@ -8,9 +8,8 @@ export const history = createBrowserHistory();
 export const RouterContext = createContext();
 
 class Router extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { matched: [] };
+  state = { matched: [] };
+  componentDidMount() {
     if (
       this.props.routes &&
       this.props.routes instanceof Array &&
@@ -21,16 +20,8 @@ class Router extends Component {
         path: this.props.routes[0].path,
       };
       this.__404 = this.props.routes.find((route) => route.name === "404");
-    }
-  }
-
-  componentDidMount() {
-    if (
-      this.props.routes &&
-      this.props.routes instanceof Array &&
-      this.props.routes.length
-    )
       this.handleRouteChange(history);
+    }
   }
 
   componentWillUnmount() {
@@ -38,6 +29,10 @@ class Router extends Component {
   }
 
   matchPath = (pathname) => {
+    if (this.handleBeforeUnload(this.state.matched, pathname) === false) {
+      history.back();
+      return;
+    }
     const matchedRoutes = [];
     const { routes } = this.props;
     if (!routes) return;
@@ -68,29 +63,36 @@ class Router extends Component {
       this.__404
         ? history.replace(this.__404.path)
         : history.replace(this.__default.path);
-    } else {
-      if (this.handleBeforeLoad(matchedRoutes) === false) return;
-      if (this.handleBeforeUnload(this.state.matched) === false) return;
-      this.setState({ matched: matchedRoutes });
+      return;
     }
+    if (this.handleBeforeLoad(matchedRoutes, pathname) === false) {
+      this.state.matched.length > 0
+        ? history.back()
+        : history.replace(this.__default.path);
+      return;
+    }
+    this.setState({ matched: matchedRoutes });
   };
 
   handleRouteChange = (history) => {
     this.matchPath(history.location.pathname);
   };
 
-  handleBeforeLoad = (mRoutes) => {
+  handleBeforeLoad = (mRoutes, pathname) => {
     if (!mRoutes.length) return;
     const cur = mRoutes[mRoutes.length - 1];
+    if (cur.path !== pathname) return;
     if (cur.beforeLoad && cur.beforeLoad instanceof Function)
       return cur.beforeLoad();
   };
-  handleBeforeUnload = (cRoutes) => {
+  handleBeforeUnload = (cRoutes, pathname) => {
     if (!cRoutes.length) return;
     const cur = cRoutes[cRoutes.length - 1];
+    if (cur.path === pathname) return;
     if (cur.beforeUnload && cur.beforeUnload instanceof Function)
       return cur.beforeUnload();
   };
+
   render() {
     return (
       <RouterContext.Provider value={{ matched: this.state.matched }}>
